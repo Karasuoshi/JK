@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://karasuoshi.github.io/JK/schema/recipe.schema.json",
+  "title": "Рецепт Julia's Kitchen",
+  "description": "Один рецепт = один файл recipes/<id>.json. Подробности и примеры — в AGENTS.md.",
+  "type": "object",
+  "required": ["id", "title", "description", "category", "ingredients", "steps"],
+  "additionalProperties": false,
+  "$defs": {
+    "qty": {
+      "oneOf": [
+        { "type": "number", "minimum": 0 },
+        { "type": "array", "items": { "type": "number", "minimum": 0 }, "minItems": 2, "maxItems": 2 }
+      ]
+    },
+    "keyName": { "type": "string", "minLength": 1, "description": "Продукт из data/products.json, именительный падеж, ед. число" },
+    "ingredient": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "key": { "oneOf": [ { "$ref": "#/$defs/keyName" }, { "type": "array", "items": { "$ref": "#/$defs/keyName" } }, { "type": "null" } ] },
+        "qty": { "$ref": "#/$defs/qty" },
+        "unit": { "type": "string", "examples": ["г", "кг", "мл", "л", "шт.", "ч. л.", "ст. л.", "зубчик", "пучок"] },
+        "amount": { "type": "string", "examples": ["по вкусу", "щепотка", "для посыпки"] },
+        "alt": { "type": "string", "description": "Второе количество в скобках, например «1 ч. л.»" },
+        "note": { "type": "string" },
+        "optional": { "type": "boolean" },
+        "approx": { "type": "boolean" }
+      },
+      "oneOf": [ { "required": ["qty", "unit"] }, { "required": ["amount"] } ]
+    }
+  },
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "title": { "type": "string", "minLength": 1 },
+    "tagline": { "type": "string" },
+    "source": { "type": "string" },
+    "description": { "type": "string", "minLength": 1 },
+    "category": { "enum": ["zavtraki", "supy", "goryachee", "salaty", "zakuski", "pirogi", "vypechka", "deserty", "sousy", "napitki"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "servings": {
+      "type": "object", "required": ["qty", "unit"], "additionalProperties": false,
+      "properties": { "qty": { "$ref": "#/$defs/qty" }, "unit": { "type": "string" }, "note": { "type": "string" } }
+    },
+    "time": {
+      "type": "object", "required": ["text", "minutes"], "additionalProperties": false,
+      "properties": { "text": { "type": "string" }, "note": { "type": "string" }, "minutes": { "$ref": "#/$defs/qty" }, "active": { "type": "number" } }
+    },
+    "difficulty": { "enum": ["простая", "средняя", "сложная"] },
+    "equipment": { "type": "string" },
+    "ingredients": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["items"], "additionalProperties": false,
+        "properties": { "group": { "type": ["string", "null"] }, "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ingredient" } } }
+      }
+    },
+    "steps": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "required": ["text"], "additionalProperties": false, "properties": { "title": { "type": "string" }, "text": { "type": "string", "minLength": 1 } } }
+    },
+    "tips": { "type": "array", "items": { "type": "string" } },
+    "notes": {
+      "type": "array",
+      "items": { "type": "object", "required": ["title", "items"], "additionalProperties": false, "properties": { "title": { "type": "string" }, "items": { "type": "array", "items": { "type": "string" } } } }
+    },
+    "card": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "image": { "type": "string", "pattern": "^cards/.+\\.(jpg|jpeg|png|webp)$" },
+        "theme": { "enum": ["green", "plum", "terracotta"] },
+        "sticker": { "type": "string" },
+        "aside": { "type": "string" },
+        "footer": { "type": "string" },
+        "photo_crop": {
+          "type": "object", "required": ["x", "y", "w", "h"],
+          "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "w": { "type": "number" }, "h": { "type": "number" } }
+        }
+      }
+    },
+    "photo": { "type": "string", "pattern": "^photos/.+\\.(jpg|jpeg|png|webp)$" },
+    "author": { "type": "string" },
+    "added": { "type": "string", "format": "date" }
+  }
+}

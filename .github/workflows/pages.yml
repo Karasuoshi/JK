@@ -1,0 +1,47 @@
+name: Сборка и публикация сайта
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Проверка рецептов
+        run: node tools/validate.mjs
+      - name: Сборка сайта
+        run: node tools/build.mjs
+      - name: Карточки и фото для новых рецептов
+        run: |
+          if node -e "const j=require('./_site/data/render.json'); process.exit(j.cards.length || j.photos.length ? 0 : 1)"; then
+            npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.0
+            npx playwright install --with-deps chromium
+            node tools/render.mjs
+          else
+            echo "Новых карточек нет"
+          fi
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

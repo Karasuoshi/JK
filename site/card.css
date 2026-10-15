@@ -1,0 +1,71 @@
+/* Карточка рецепта в стиле Юли: 853 px в ширину, как оригиналы */
+@font-face { font-family: "Marck Script"; src: url(fonts/marck-script.woff) format("woff"); }
+@font-face { font-family: "Caveat"; src: url(fonts/caveat.woff) format("woff"); font-weight: 400 700; }
+@font-face { font-family: "Lora"; src: url(fonts/lora.woff) format("woff"); font-weight: 400 700; }
+
+:root { --accent: #2f4a2c; --wash: #c2c9a2; --tape: #344d31; --kraft: #eedab0; --ink: #3a2c1e; --soft: #6e5a45; --icon: #a8865f; }
+body[data-theme="plum"] { --accent: #6e2541; --wash: #dcc0c9; --tape: #b38fa0; }
+body[data-theme="terracotta"] { --accent: #6f321b; --wash: #e4c6a6; --tape: #8a9c6c; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #d9c9aa; }
+svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.c {
+  position: relative; width: 853px; min-height: 900px; margin: 0 auto; padding: 34px 32px 34px 44px; color: var(--ink);
+  font: 14px/1.42 "Lora", Georgia, serif;
+  background-color: #f2e5cc;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .28 0 0 0 0 .12 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 15% 10%, #f8eedc 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 95%, #e3cfac 0%, transparent 60%);
+  overflow: hidden;
+}
+.c::before { content: ""; position: absolute; left: 22px; top: 18px; bottom: 18px; border-left: 2px dashed rgba(110, 90, 69, .28); }
+
+.c-head { display: grid; grid-template-columns: 1fr 395px; gap: 22px; align-items: start; }
+.c-head.no-photo { grid-template-columns: 1fr 190px; }
+.c h1 { font: 400 64px/.98 "Marck Script", cursive; -webkit-text-stroke: 1px currentColor; color: var(--accent); margin: 6px 0 14px; }
+.c-heart svg { width: 30px; height: 30px; margin-left: 8px; vertical-align: 4px; }
+.c-tagline { font: 600 26px/1.1 "Caveat", cursive; color: var(--accent); margin: -4px 0 10px; }
+.c-source { font: 500 23px/1.15 "Caveat", cursive; color: var(--soft); margin: 0 0 10px; text-decoration: underline; text-decoration-color: var(--wash); }
+.c-desc { font: 500 25px/1.18 "Caveat", cursive; color: #5e4834; margin: 0 0 18px; transform: rotate(-2.5deg); transform-origin: left top; }
+.c-meta { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.c-meta li { display: flex; align-items: center; gap: 14px; font-size: 16.5px; line-height: 1.2; }
+.c-meta svg { width: 44px; height: 44px; padding: 10px; border-radius: 50%; background: var(--icon); color: #fbf4e6; flex: none; }
+.c-meta small { display: block; font-size: 13.5px; color: var(--soft); }
+
+.c-photo { position: relative; margin: 0 -14px 0 0; padding-top: 6px; }
+.c-pol { display: block; background: #fffdf8; padding: 11px 11px 15px; transform: rotate(2deg); box-shadow: 0 2px 4px rgba(60, 40, 20, .2), 0 10px 26px rgba(60, 40, 20, .18); position: relative; }
+.c-pol img { display: block; width: 100%; aspect-ratio: 4 / 3.4; object-fit: cover; }
+.c-tape { position: absolute; top: -12px; left: 52%; width: 34%; height: 28px; z-index: 1; transform: rotate(-2deg);
+  background-color: var(--tape); background-image: radial-gradient(circle, rgba(255, 255, 255, .85) 1.6px, transparent 1.9px); background-size: 9px 9px; }
+.c-sticker { position: absolute; right: -6px; bottom: -40px; width: 178px; padding: 14px 14px 16px; background: var(--kraft); transform: rotate(-6deg);
+  font: 500 24px/1.08 "Caveat", cursive; text-align: center; box-shadow: 0 3px 10px rgba(60, 40, 20, .22); }
+.c-sticker.solo { position: relative; right: auto; bottom: auto; margin-top: 40px; }
+
+.c-cols { display: grid; grid-template-columns: 338px 1fr; gap: 0; margin-top: 34px; }
+.c-ing { padding-right: 22px; }
+.c-steps { padding-left: 24px; border-left: 2px dashed rgba(110, 90, 69, .3); }
+.c-brush { display: inline-block; font: 400 36px/1 "Marck Script", cursive; -webkit-text-stroke: .6px currentColor; color: var(--accent); margin: 0 0 14px -10px; padding: 6px 30px 10px 14px;
+  background: linear-gradient(100deg, transparent 0 1%, var(--wash) 3% 93%, transparent 99%); border-radius: 3px 16px 5px 12px; }
+.c-group h3 { font-size: 15.5px; margin: 12px 0 4px; }
+.c-group ul { list-style: none; margin: 0; padding: 0; }
+.c-group li { display: flex; align-items: baseline; gap: 4px; padding: 2.5px 0; font-size: 14.8px; }
+.c-group li span { flex: 0 1 auto; }
+.c-group li i { flex: 1 1 10px; min-width: 10px; border-bottom: 2px dotted rgba(58, 44, 30, .38); transform: translateY(-4px); }
+.c-group li b { font-weight: 400; flex: none; max-width: 46%; text-align: right; }
+.c-aside { font: 600 23px/1.1 "Caveat", cursive; color: var(--accent); margin: 26px 0 0 20px; transform: rotate(-6deg); max-width: 250px; }
+
+.c-steps ol { list-style: none; margin: 0; padding: 0; }
+.c-steps ol > li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 0 0 11px; }
+.c-n { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fbf4e6; display: grid; place-items: center; font-weight: 700; font-size: 15px; margin-top: 1px; }
+.c-steps p { margin: 0; }
+.c-steps b { font-weight: 700; }
+.c-tips, .c-note { margin-top: 14px; background: var(--kraft); padding: 12px 18px 14px; border-radius: 4px 16px 6px 14px; box-shadow: 0 1px 3px rgba(60, 40, 20, .12); }
+.c-note { background: #f6e7a6; transform: rotate(-.6deg); }
+.c-tips h2, .c-note h2 { display: flex; align-items: center; gap: 8px; font: 400 32px/1 "Marck Script", cursive; color: var(--accent); margin: 0 0 6px; }
+.c-tips h2 svg { width: 26px; height: 26px; fill: #7b5a3c; stroke: #7b5a3c; }
+.c-tips ul, .c-note ul { margin: 0; padding-left: 18px; font: 500 19.5px/1.15 "Caveat", cursive; }
+.c-tips li, .c-note li { margin: 3px 0; }
+.c-foot { text-align: center; font: 400 34px/1 "Marck Script", cursive; color: var(--accent); margin-top: 26px; }
+.c-foot svg { width: 24px; height: 24px; margin-left: 8px; }

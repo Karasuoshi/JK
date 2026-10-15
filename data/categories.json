@@ -1,0 +1,12 @@
+[
+  { "id": "zavtraki",  "title": "Завтраки" },
+  { "id": "supy",      "title": "Супы" },
+  { "id": "goryachee", "title": "Горячее" },
+  { "id": "salaty",    "title": "Салаты" },
+  { "id": "zakuski",   "title": "Закуски" },
+  { "id": "pirogi",    "title": "Пироги" },
+  { "id": "vypechka",  "title": "Выпечка" },
+  { "id": "deserty",   "title": "Десерты" },
+  { "id": "sousy",     "title": "Соусы и заготовки" },
+  { "id": "napitki",   "title": "Напитки" }
+]
