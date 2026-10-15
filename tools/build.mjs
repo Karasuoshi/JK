@@ -42,6 +42,9 @@ for (const r of recipes) for (const k of recipeKeys(r)) {
 }
 const VERSION = Date.now().toString(36);
 
+// завершающий орнамент, как на карточках Юли: стрелочки → ♡ ←
+const VINE = `<svg class="vine" viewBox="0 0 300 26" aria-hidden="true"><path d="M8 13h112M24 8l7 5-7 5M44 8l7 5-7 5M64 8l7 5-7 5M84 8l7 5-7 5M104 8l7 5-7 5M180 13h112M196 8l-7 5 7 5M216 8l-7 5 7 5M236 8l-7 5 7 5M256 8l-7 5 7 5M276 8l-7 5 7 5"/><path d="M150 22s-11-6.6-11-14a6 6 0 0 1 11-3.4A6 6 0 0 1 161 8c0 7.4-11 14-11 14z"/></svg>`;
+
 const ICON = {
   clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   serve: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 21V3c-2 1.5-3 4-3 7v3h3"/></svg>',
@@ -222,6 +225,7 @@ function buildRecipe(r) {
   const body = `${header(base, 'recipes')}
 <main class="recipe wrap">
   <a class="back" href="${base}index.html#${r.category}">${ICON.back}${esc(catTitle(r.category))}</a>
+  <article class="sheet">
   <section class="hero">
     <div class="hero-text">
       <h1 class="r-title">${esc(r.title)}<span class="heart">${ICON.heart}</span></h1>
@@ -256,10 +260,15 @@ function buildRecipe(r) {
       <h2 class="brush">Приготовление</h2>
       <ol class="steps">${steps}</ol>
       ${tips}${notes}
-      ${r.card?.footer ? `<p class="signoff">${esc(r.card.footer)}</p>` : ''}
     </section>
   </div>
+  <footer class="sheet-end" id="recipe-end">
+    ${VINE}
+    <p class="signoff">${esc(r.card?.footer || 'Приятного аппетита!')}</p>
+  </footer>
+  </article>
 
+  <div class="after">
   ${keys.length ? `<section class="keys"><h2 class="section-title small">Продукты в рецепте</h2><div class="pchips">${keys
     .map((k) => `<a class="pchip" href="${base}products.html#${encodeURIComponent(k)}">${esc(dict.products[k].title)}</a>`)
     .join('')}</div></section>` : ''}
@@ -267,6 +276,7 @@ function buildRecipe(r) {
   ${rel.length ? `<section class="related"><h2 class="section-title small">Ещё попробовать</h2><div class="grid">${rel.map((x, i) => tile(x, base, i)).join('')}</div></section>` : ''}
 
   ${card ? `<section class="orig"><h2 class="section-title small">Карточка рецепта</h2><a href="${card}" target="_blank" rel="noopener"><img src="${card}" alt="Карточка рецепта «${esc(r.title)}»" loading="lazy"></a></section>` : ''}
+  </div>
 </main>
 <div class="timers" id="timers" aria-live="polite"></div>
 <script type="application/json" id="recipe-data">${JSON.stringify({ id: r.id, servings: r.servings, ingredients: r.ingredients }).replace(/</g, '\\u003c')}</script>

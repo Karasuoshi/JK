@@ -183,6 +183,15 @@ function initRecipe() {
   if (!K.includes(state.k)) state.k = 1;
   applyScale();
 
+  // нижняя панель уезжает, когда рецепт закончился
+  const bar = $('.kitchen-bar');
+  const end = $('#recipe-end');
+  if (bar && end && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => {
+      bar.classList.toggle('away', e.isIntersecting || e.boundingClientRect.top < 0);
+    }).observe(end);
+  }
+
   // экран не гаснет
   const wake = $('.wake');
   let lock = null;
