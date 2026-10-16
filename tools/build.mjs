@@ -105,7 +105,7 @@ function tile(r, base, i) {
   return `<a class="tile" href="${base}r/${r.id}.html" data-id="${r.id}" data-cat="${r.category}" style="--tilt:${[-1.4, 1, -0.6, 1.3, -1, 0.7][i % 6]}deg">
   <span class="polaroid"><span class="tape"></span><img src="${base}${photoOf(r)}" alt="" loading="lazy" decoding="async"></span>
   <span class="tile-title">${esc(r.title)}</span>
-  <span class="tile-meta"><span>${ICON.clock}${esc(shortTime(r.time))}</span><span>${ICON.serve}${esc(fmtServings(r.servings))}</span></span>
+  <span class="tile-meta"><span>${ICON.clock}${esc(shortTime(r.time))}</span>${r.servings ? `<span>${ICON.serve}${esc(fmtServings(r.servings))}</span>` : ''}</span>
 </a>`;
 }
 
@@ -126,8 +126,11 @@ function buildIndex() {
     <input type="search" id="q" placeholder="Название или продукт: черника, курица…" autocomplete="off">
     <button class="icon-btn search-close" aria-label="Закрыть поиск">${ICON.close}</button>
   </div>
-  <h1 class="section-title" id="list-title">Все рецепты</h1>
-  <div class="grid" id="grid">${sorted.map((r, i) => tile(r, base, i)).join('\n')}</div>
+  <h1 class="section-title" id="list-title" hidden>Все рецепты</h1>
+  <div id="grid">${used.map((c) => {
+    const list = sorted.filter((r) => r.category === c.id);
+    return `<section class="cat-sec" data-cat="${c.id}"><h2 class="cat-title"><span>${esc(c.title)}</span><b>${list.length}</b></h2><div class="grid">${list.map((r, i) => tile(r, base, i)).join('\n')}</div></section>`;
+  }).join('\n')}</div>
   <p class="empty" id="empty" hidden>Ничего не нашлось. Попробуйте другое слово или загляните <a href="products.html">в продукты</a>.</p>
 </main>
 ${footer()}`;

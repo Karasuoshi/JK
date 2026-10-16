@@ -75,6 +75,12 @@ button { font: inherit; color: inherit; }
 .section-title.small { font-size: 28px; margin-top: 34px; }
 .lead { margin: -6px 0 18px; color: var(--ink-soft); }
 .empty { color: var(--ink-soft); }
+.cat-sec { margin: 18px 0 30px; }
+.cat-sec[hidden] { display: none; }
+.cat-title { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; font-weight: 400; }
+.cat-title span { font-family: var(--script); -webkit-text-stroke: .5px currentColor; color: var(--accent); font-size: 32px; line-height: 1.1;
+  padding: 0 18px 2px 8px; margin-left: -8px; background: linear-gradient(100deg, transparent 0 1%, var(--wash) 3% 94%, transparent 99%); border-radius: 2px 12px 4px 10px; }
+.cat-title b { font: 600 20px var(--hand); color: var(--ink-soft); }
 
 /* ---------- tiles ---------- */
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px 16px; padding-bottom: 12px; }

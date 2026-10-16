@@ -7,10 +7,11 @@ self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const c = await caches.open(CACHE);
     await c.addAll(CORE);
-    // заранее кладём в кэш все рецепты и фото, чтобы они открывались без сети
+    // заранее кладём в кэш все рецепты, чтобы они открывались без сети
     try {
       const idx = await (await fetch('./data/index.json')).json();
-      const urls = idx.recipes.flatMap((r) => [`./r/${r.id}.html`, r.photo ? `./${r.photo}` : null]).filter(Boolean);
+      // страницы рецептов — заранее (они лёгкие); фото кладутся в кэш, когда их открыли
+      const urls = idx.recipes.map((r) => `./r/${r.id}.html`);
       await Promise.allSettled(urls.map((u) => c.add(u)));
     } catch { /* не страшно */ }
     self.skipWaiting();

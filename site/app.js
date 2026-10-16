@@ -19,7 +19,7 @@ function tileHTML(r, i) {
   return `<a class="tile" href="${base}r/${r.id}.html" style="--tilt:${tilt}deg">
   <span class="polaroid"><span class="tape"></span><img src="${base}${r.photo || 'assets/no-photo.svg'}" alt="" loading="lazy"></span>
   <span class="tile-title">${esc(r.title)}</span>
-  <span class="tile-meta"><span>${CLOCK}${esc(r.time)}</span><span>${SERVE}${esc(r.serv)}</span></span></a>`;
+  <span class="tile-meta"><span>${CLOCK}${esc(r.time)}</span>${r.serv ? `<span>${SERVE}${esc(r.serv)}</span>` : ''}</span></a>`;
 }
 
 const stem = (w) => w.slice(0, Math.max(3, w.length - 2));
@@ -40,6 +40,7 @@ function initHome() {
   let query = '';
   let index = null;
 
+  const sections = $$('.cat-sec');
   function apply() {
     let shown = 0;
     for (const t of tiles) {
@@ -48,8 +49,11 @@ function initHome() {
       t.hidden = !ok;
       if (ok) shown++;
     }
+    for (const s of sections) s.hidden = !$$('.tile', s).some((t) => !t.hidden);
     const chip = chips.find((c) => c.dataset.cat === cat);
-    title.textContent = query ? `Поиск: «${query}»` : cat === 'all' ? 'Все рецепты' : chip.firstChild.textContent.trim();
+    title.hidden = !query;
+    title.textContent = query ? `Поиск: «${query}» — ${shown}` : '';
+    document.body.classList.toggle('one-cat', cat !== 'all' && !query);
     empty.hidden = shown > 0;
   }
   function setCat(c, push = true) {
