@@ -26,6 +26,7 @@
 | `data/products.json` | справочник продуктов для раздела «По продуктам» |
 | `schema/recipe.schema.json` | схема рецепта |
 | `docs/CARD_PROMPT.md` | промпт, чтобы сделать карточку в GPT |
+| `docs/GPT_INSTRUCTIONS.md` | постоянная инструкция для GPT: текст → проверка → карточка → сверка |
 | `site/` | оформление: стили, скрипты, шрифты, иконки |
 | `tools/validate.mjs` | проверка рецептов |
 | `tools/build.mjs` | сборка сайта в `_site/` |

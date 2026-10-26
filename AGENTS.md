@@ -21,6 +21,7 @@
 | Справочник продуктов | `data/products.json` |
 | Схема рецепта | `schema/recipe.schema.json` |
 | Промпт для карточки в GPT | `docs/CARD_PROMPT.md` |
+| Инструкция для GPT, где Юля делает карточки | `docs/GPT_INSTRUCTIONS.md` |
 | Пример рецепта | `recipes/pampushki-k-borschu.json` |
 
 ## Главные правила
