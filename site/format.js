@@ -30,7 +30,7 @@ export function plural(n, word) {
   return forms[2];
 }
 
-const FRACTIONS = { 0.25: '¼', 0.5: '½', 0.75: '¾' };
+const FRACTIONS = { 0.25: '¼', 0.33: '⅓', 0.5: '½', 0.67: '⅔', 0.75: '¾' };
 const SPOONS = new Set(['ч. л.', 'ст. л.', 'стакан', 'стакана']);
 const COUNTABLE = new Set(['шт.', 'зубчик', 'пучок', 'лист', 'веточка']);
 
