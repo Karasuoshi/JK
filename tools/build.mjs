@@ -3,7 +3,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fmtQty, fmtServings, shortTime, normalize } from '../site/format.js';
+import { fmtQty, fmtServings, shortTime, normalize, eachMark, plainStep } from '../site/format.js';
+import { nutritionOf } from './nutrition.mjs';
 import { validateAll } from './validate.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -14,6 +15,7 @@ const SITE_NAME = "Julia's Kitchen";
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 const categories = read('data/categories.json');
 const dict = read('data/products.json');
+const nutrition = read('data/nutrition.json').products;
 
 const { recipes, errors, warnings } = validateAll(ROOT);
 for (const w of warnings) console.warn('⚠ ' + w);
@@ -25,6 +27,15 @@ if (errors.length) {
 
 // ---------- helpers ----------
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// текст шага: количества в {скобках} становятся пересчитываемыми
+const stepHtml = (text) => {
+  const parts = [];
+  const marked = eachMark(text, (it) => { parts.push(it); return `\u0001${parts.length - 1}\u0002`; });
+  return esc(marked).replace(/\u0001(\d+)\u0002/g, (_, n) => {
+    const it = parts[n];
+    return `<span class="sq" data-it="${esc(JSON.stringify(it))}">${esc(fmtQty(it, 1, false))}</span>`;
+  });
+};
 const keysOf = (it) => (it.key == null ? [] : Array.isArray(it.key) ? it.key : [it.key]);
 const recipeKeys = (r) => [...new Set(r.ingredients.flatMap((g) => g.items.flatMap(keysOf)))];
 const isBasic = (k) => dict.products[k]?.group === 'Базовое';
@@ -205,6 +216,20 @@ function related(r) {
     .map((s) => s.x);
 }
 
+function nutritionBlock(r) {
+  const n = nutritionOf(r, nutrition);
+  r.nutrition = n;
+  if (!n) return '';
+  return `<section class="kcal" aria-label="Калорийность">
+  <h2 class="brush">Калории</h2>
+  <p class="kcal-main"><b class="js-kcal100"></b> в 100 г<span class="js-kcal-por"></span></p>
+  <p class="kcal-all">Всё блюдо: <span class="js-kcal-all"></span></p>
+  <label class="kcal-row"><span>Съел(а)</span><input class="js-kcal-ate" type="number" inputmode="numeric" min="0" step="10" value="100"><span>г</span><b class="js-kcal-res"></b></label>
+  <label class="kcal-row"><span>Готовое блюдо весит</span><input class="js-kcal-weight" type="number" inputmode="numeric" min="1" step="50"><span>г</span></label>
+  <p class="kcal-note">Примерно: по продуктам рецепта и средним таблицам. Вес готового блюда тоже примерный: взвесьте и впишите, будет точнее.${n.missing.length ? ` Не учтено: ${esc(n.missing.join(', '))}.` : ''}</p>
+</section>`;
+}
+
 function buildRecipe(r) {
   const base = '../';
   const keys = recipeKeys(r).filter((k) => !isBasic(k) && dict.products[k]);
@@ -215,7 +240,7 @@ function buildRecipe(r) {
     r.equipment && `<li>${ICON.pie}<span><b>${esc(r.equipment)}</b></span></li>`,
   ].filter(Boolean).join('');
   const steps = r.steps
-    .map((s, i) => `<li class="step" data-i="${i}"><button class="step-n" aria-label="Шаг ${i + 1}: отметить выполненным">${i + 1}</button><div class="step-body">${s.title ? `<h3>${esc(s.title)}</h3>` : ''}<p>${esc(s.text)}</p></div></li>`)
+    .map((s, i) => `<li class="step" data-i="${i}"><button class="step-n" aria-label="Шаг ${i + 1}: отметить выполненным">${i + 1}</button><div class="step-body">${s.title ? `<h3>${esc(s.title)}</h3>` : ''}<p>${stepHtml(s.text)}</p></div></li>`)
     .join('');
   const tips = r.tips?.length
     ? `<aside class="tips"><h2>${ICON.heart}${r.tips.length > 1 ? 'Советы' : 'Совет'}</h2><ul>${r.tips.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></aside>`
@@ -258,6 +283,7 @@ function buildRecipe(r) {
       <h2 class="brush">Ингредиенты</h2>
       ${ingredientList(r)}
       ${r.card?.aside ? `<p class="aside">${esc(r.card.aside)}</p>` : ''}
+      ${nutritionBlock(r)}
     </section>
     <section class="method" id="steps">
       <h2 class="brush">Приготовление</h2>
@@ -282,7 +308,7 @@ function buildRecipe(r) {
   </div>
 </main>
 <div class="timers" id="timers" aria-live="polite"></div>
-<script type="application/json" id="recipe-data">${JSON.stringify({ id: r.id, servings: r.servings, ingredients: r.ingredients }).replace(/</g, '\\u003c')}</script>
+<script type="application/json" id="recipe-data">${JSON.stringify({ id: r.id, servings: r.servings, ingredients: r.ingredients, nutrition: r.nutrition }).replace(/</g, '\\u003c')}</script>
 ${footer()}`;
   return page({
     title: `${r.title} — ${SITE_NAME}`,
@@ -305,7 +331,7 @@ function buildCard(r) {
   ].filter(Boolean).join('');
   const ings = r.ingredients.map((g) => `<div class="c-group">${g.group ? `<h3>${esc(g.group)}${/[:)]$/.test(g.group) ? '' : ':'}</h3>` : ''}<ul>${g.items
     .map((it) => `<li><span>${esc(it.name)}${it.note ? ` (${esc(it.note)})` : ''}${it.optional ? ' (по желанию)' : ''}</span><i></i><b>${esc(fmtQty(it))}</b></li>`).join('')}</ul></div>`).join('');
-  const steps = r.steps.map((st, i) => `<li><span class="c-n">${i + 1}</span><p>${st.title ? `<b>${esc(st.title)}.</b> ` : ''}${esc(st.text)}</p></li>`).join('');
+  const steps = r.steps.map((st, i) => `<li><span class="c-n">${i + 1}</span><p>${st.title ? `<b>${esc(st.title)}.</b> ` : ''}${esc(plainStep(st.text))}</p></li>`).join('');
   const tips = r.tips?.length ? `<aside class="c-tips"><h2>${ICON.heart}${r.tips.length > 1 ? 'Советы:' : 'Совет:'}</h2><ul>${r.tips.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></aside>` : '';
   const notes = (r.notes || []).map((n) => `<aside class="c-note"><h2>${esc(n.title)}</h2><ul>${n.items.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></aside>`).join('');
   const sticker = r.card?.sticker || 'Просто. Вкусно. По-домашнему.';

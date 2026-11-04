@@ -147,7 +147,7 @@ function initRecipe() {
   for (const li of $$('.step')) {
     const i = Number(li.dataset.i);
     const p = $('p', li);
-    p.innerHTML = esc(p.textContent).replace(RX, (m, a, b, unit) => {
+    p.innerHTML = p.innerHTML.replace(RX, (m, a, b, unit) => {
       const mins = parseFloat(a.replace(',', '.')) * (/^час/i.test(unit) ? 60 : 1);
       return `<button class="timer-chip" data-min="${mins}" data-step="${i + 1}" title="Запустить таймер">${CLOCK}${m}</button>`;
     });
@@ -163,6 +163,34 @@ function initRecipe() {
     if (chip) startTimer(Number(chip.dataset.min), `Шаг ${chip.dataset.step}: ${chip.textContent.trim()}`);
   });
 
+  // калории: 100 г, порция, всё блюдо и «съел N грамм»
+  const nut = data.nutrition;
+  const ate = $('.js-kcal-ate');
+  const weightIn = $('.js-kcal-weight');
+  const wKey = 'jk-weight:' + data.id;
+  const fmtK = (v) => '≈ ' + Math.round(v).toLocaleString('ru-RU') + ' ккал';
+  function updateKcal() {
+    if (!nut || !weightIn) return;
+    const total = nut.kcal * state.k;
+    if (document.activeElement !== weightIn) {
+      const own = Number(store.get(wKey));
+      weightIn.value = Math.round((own > 0 ? own : nut.weight) * state.k / 10) * 10;
+    }
+    const w = Number(weightIn.value) > 0 ? Number(weightIn.value) : nut.weight * state.k;
+    const per100 = total / w * 100;
+    $('.js-kcal100').textContent = fmtK(per100);
+    $('.js-kcal-all').textContent = fmtK(total);
+    const s = data.servings;
+    const n = s ? (Array.isArray(s.qty) ? (s.qty[0] + s.qty[1]) / 2 : s.qty) * state.k : 0;
+    $('.js-kcal-por').textContent = n && /порци/i.test(s.unit) ? ` · порция ${fmtK(total / n)}` : '';
+    $('.js-kcal-res').textContent = fmtK((Number(ate.value) || 0) * per100 / 100);
+  }
+  if (nut && weightIn) {
+    ate.addEventListener('input', updateKcal);
+    weightIn.addEventListener('input', () => { store.set(wKey, (Number(weightIn.value) || 0) / state.k); updateKcal(); });
+    weightIn.addEventListener('blur', updateKcal);
+  }
+
   // пересчёт порций
   const K = [0.5, 1, 1.5, 2, 3];
   const lbl = { 0.5: '×½', 1: '×1', 1.5: '×1½', 2: '×2', 3: '×3' };
@@ -176,6 +204,8 @@ function initRecipe() {
       if (alt) alt.hidden = state.k !== 1;
     }
     if (serv && data.servings) serv.textContent = fmtServings(data.servings, state.k);
+    for (const sq of $$('.sq')) sq.textContent = fmtQty(JSON.parse(sq.dataset.it), state.k, false);
+    updateKcal();
   }
   $$('.scale-btn').forEach((b) => b.addEventListener('click', () => {
     const at = K.indexOf(state.k) + Number(b.dataset.d);

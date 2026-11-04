@@ -90,3 +90,17 @@ export function shortTime(t) {
 export function normalize(s) {
   return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
 }
+
+// Количество в тексте шага пишется в фигурных скобках: «Смешать {250 г} муки». Сайт пересчитывает его вместе с порциями.
+const MARK = /\{\s*(около\s+)?(\d+(?:[.,]\d+)?)(?:\s*[–-]\s*(\d+(?:[.,]\d+)?))?\s*([^{}]*?)\s*\}/g;
+const toNum = (x) => Number(x.replace(',', '.'));
+
+export function eachMark(text, fn) {
+  return String(text ?? '').replace(MARK, (m, approx, a, b, unit) =>
+    fn({ qty: b ? [toNum(a), toNum(b)] : toNum(a), unit, approx: !!approx }, m));
+}
+
+// Текст шага без разметки: «Смешать 250 г муки».
+export function plainStep(text) {
+  return eachMark(text, (it) => fmtQty(it, 1, false));
+}

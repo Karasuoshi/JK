@@ -219,3 +219,15 @@ body.recipe-page { padding-bottom: 70px; }
   .top .tabs, .kitchen-bar, .related, .keys, .orig, .back, .timers, .foot { display: none !important; }
   .cols { grid-template-columns: 1fr 1.4fr; }
 }
+
+/* количество в шаге и калории */
+.sq { font-weight: 600; white-space: nowrap; }
+.kcal { margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.kcal .brush { font-size: 28px; margin: 0 0 4px; }
+.kcal-main { margin: 0; }
+.kcal-main b { font-size: 21px; }
+.kcal-all { margin: 2px 0 10px; color: var(--ink-soft); font-size: 15px; }
+.kcal-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 5px 0; }
+.kcal-row input { width: 86px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--sheet); color: var(--ink); font: inherit; font-size: 16px; text-align: right; }
+.kcal-row b { margin-left: auto; white-space: nowrap; }
+.kcal-note { margin: 8px 0 0; color: var(--ink-soft); font-size: 13px; line-height: 1.35; }

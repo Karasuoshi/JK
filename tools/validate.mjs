@@ -16,6 +16,7 @@ export function validateAll(root) {
   const warnings = [];
   const categories = JSON.parse(fs.readFileSync(path.join(root, 'data/categories.json'), 'utf8')).map((c) => c.id);
   const dict = JSON.parse(fs.readFileSync(path.join(root, 'data/products.json'), 'utf8'));
+  const nutrition = fs.existsSync(path.join(root, 'data/nutrition.json')) ? JSON.parse(fs.readFileSync(path.join(root, 'data/nutrition.json'), 'utf8')).products : null;
   const dir = path.join(root, 'recipes');
   const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort();
   const recipes = [];
@@ -58,12 +59,17 @@ export function validateAll(root) {
         if (!hasQty && !isStr(it.amount)) err(`${at}: нужен либо "qty"+"unit", либо "amount" (например "по вкусу")`);
         const keys = it.key == null ? [] : Array.isArray(it.key) ? it.key : [it.key];
         if (it.key === undefined) warn(`${at}: нет "key" — продукт не попадёт в раздел «По продуктам»`);
+        for (const k of keys) if (nutrition && !nutrition[k]) warn(`${at}: продукта "${k}" нет в data/nutrition.json — в калориях он не учтётся`);
         for (const k of keys) if (!dict.products[k]) warn(`${at}: продукта "${k}" нет в data/products.json — он попадёт в группу «Другое»`);
       });
     });
 
     if (!Array.isArray(r.steps) || !r.steps.length) err('нет шагов "steps"');
-    else r.steps.forEach((s, i) => { if (!isStr(s.text)) err(`шаг ${i + 1}: нет "text"`); });
+    else r.steps.forEach((s, i) => {
+      if (!isStr(s.text)) return err(`шаг ${i + 1}: нет "text"`);
+      const bad = s.text.match(/\{(?!\s*(около\s+)?\d)[^}]*\}|\{[^}]*$/);
+      if (bad) err(`шаг ${i + 1}: разметка количества должна быть вида {250 г}, а тут "${bad[0]}"`);
+    });
     if (r.tips && !Array.isArray(r.tips)) err('"tips" должно быть списком строк');
     if (r.notes && !(Array.isArray(r.notes) && r.notes.every((n) => isStr(n.title) && Array.isArray(n.items)))) err('"notes" — список {"title", "items": [...]}');
 
